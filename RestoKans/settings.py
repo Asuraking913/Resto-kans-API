@@ -39,7 +39,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated'
     ], 
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.JWTAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ]
 }
 
@@ -145,3 +145,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
+AUTH_USER_MODEL = "resto.User"
