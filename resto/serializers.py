@@ -1,18 +1,35 @@
-from .models import User
+from .models import User, Product
 from rest_framework import serializers
+from django.http import HttpResponse
 
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", 'username', "password"]
+        fields = ["id", 'email', "password"]
         extra_kwargs = {"password" : {"write_only" : True}}
 
-    def validate_email(self, value):
-        if User.objects.filter(useremail = value).exists():
-            raise serializers.ValidationError("This email Already exists")
+    def create(self, validated_data):
+        
+        user_exist = User.objects.filter(email = validated_data['email'])
+        if user_exist:
+            raise serializers.ValidationError({"email" : "This email address already exists"})
 
+        user = User(
+            email = validated_data['email']
+        )
 
-    def create_user(self, validated_data):
-        user = User.objects.create(**validated_data)
+        user.set_password(validated_data['password'])
+        user.save()
         return user
+
+    # def create_user(self, validated_data):
+    #     user = User.objects.create(**validated_data)
+    #     return user
+    
+class ProductSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Product
+        fields = ['id', 'name', 'price', 'available_stock', 'category']
+    
