@@ -9,6 +9,7 @@ def generate_id():
 # Create your models here.
 class User(AbstractUser):
     id = models.CharField(max_length=255, default=generate_id, primary_key=True, unique=True)
+    email = models.EmailField(unique=True)
     default_address = models.TextField(max_length=400)
 
     def __str__(self):
