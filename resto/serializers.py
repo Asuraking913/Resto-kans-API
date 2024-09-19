@@ -39,7 +39,8 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class ObtainAccessToken(TokenObtainPairSerializer):
     # username_field = 'email'
-    email = serializers.EmailField(required = True)
+    # email = serializers.EmailField(required = True)
+    username_field = 'email'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -53,11 +54,13 @@ class ObtainAccessToken(TokenObtainPairSerializer):
             'email' : attrs.get('email'),
             "password" : attrs.get('password')
         }
-        print(credentials)
+        print(credentials, 'event')
 
         user = authenticate(**credentials)
+        # print(user)
 
         if user is None:
+            
             raise serializers.ValidationError({"msg" :"Invalid credentials"})
         
         data = super().validate(attrs)

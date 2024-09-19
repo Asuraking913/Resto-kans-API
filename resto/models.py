@@ -12,6 +12,8 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     default_address = models.TextField(max_length=400)
 
+
+
     def __str__(self):
         return f"user: {self.username}"
     
