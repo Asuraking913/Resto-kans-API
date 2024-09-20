@@ -42,28 +42,18 @@ class ObtainAccessToken(TokenObtainPairSerializer):
     # email = serializers.EmailField(required = True)
     username_field = 'email'
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def validate(self, attrs: Dict[str, Any]) -> Dict[str, str]:
 
-        self.fields['email'] = serializers.EmailField(required = True)
-        self.fields.pop('username', None)
-
-    def validate(self, attrs):
-        
         credentials = {
-            'email' : attrs.get('email'),
-            "password" : attrs.get('password')
+            'email' : attrs.get('email'), 
+            'password' : attrs.get('password')
         }
-        print(credentials, 'event')
 
         user = authenticate(**credentials)
-        # print(user)
 
         if user is None:
-            
-            raise serializers.ValidationError({"msg" :"Invalid credentials"})
-        
-        data = super().validate(attrs)
+            raise serializers.ValidationError({'msg' : "Invaliid credentials"})
 
-        return data
+        return super().validate(attrs)
+
     
