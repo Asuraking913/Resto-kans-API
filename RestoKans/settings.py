@@ -149,6 +149,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 AUTH_USER_MODEL = "resto.User"
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760
 
 AUTHENTICATION_BACKENDS = [
     "resto.authentication.CustomAuthBackend",

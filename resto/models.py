@@ -24,6 +24,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=6, decimal_places=2)
     available_stock = models.IntegerField()
     category = models.CharField(max_length=40)
+    image = models.ImageField(null=True, blank=True)
 
 class PaymentMethod(models.Model):
     id = models.CharField(max_length=255, default=generate_id, primary_key=True, unique=True)

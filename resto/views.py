@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 def home(response):
     return HttpResponse('<h1>Resto Kans</h1>')
@@ -46,12 +47,17 @@ class ObtainTokenView(TokenObtainPairView):
 #Register user
 class CreateUserView(generics.CreateAPIView):
 
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
     
 
 class ProductView(generics.ListCreateAPIView):
+
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+
     queryset = Product.objects.all()
     permission_classes = [AllowAny]
     serializer_class = ProductSerializer
@@ -61,6 +67,8 @@ class ProductView(generics.ListCreateAPIView):
     
     def perform_create(self, serializer):
         if serializer.is_valid():
+            print('event')
+            print(serializer, 'event')
             serializer.save()
         else:
             print(serializer.errors)
