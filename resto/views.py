@@ -2,11 +2,14 @@ from rest_framework import generics
 from .models import User, Product
 from .serializers import UserSerializer, ProductSerializer, ObtainAccessToken
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework import permissions
 from django.http import HttpResponse
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
+from rest_framework.authentication import get_authorization_header
+from rest_framework.exceptions import AuthenticationFailed
 
 def home(response):
     return HttpResponse('<h1>Resto Kans</h1>')
@@ -56,19 +59,18 @@ class CreateUserView(generics.CreateAPIView):
 class ProductView(generics.ListCreateAPIView):
 
     parser_classes = [MultiPartParser, FormParser, JSONParser]
+    
 
 
     queryset = Product.objects.all()
-    permission_classes = [AllowAny]
+    permission_classes = [permissions.AllowAny]
     serializer_class = ProductSerializer
 
     # def get_queryset(self, serializer):
     #     return Product.objects.filter(name = serializer)
-    
+
     def perform_create(self, serializer):
         if serializer.is_valid():
-            print('event')
-            print(serializer, 'event')
             serializer.save()
         else:
             print(serializer.errors)

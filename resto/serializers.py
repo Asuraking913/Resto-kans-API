@@ -4,6 +4,8 @@ from rest_framework import serializers
 from django.http import HttpResponse
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
+import base64
+import json
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -33,13 +35,27 @@ class UserSerializer(serializers.ModelSerializer):
     
 class ProductSerializer(serializers.ModelSerializer):
 
+    image = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
         fields = ['id', 'name', 'price', 'available_stock', 'category', "image"]
+    
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if obj.image and request:
+            return request.build_absolute_uri(obj.image.url)
+
+        return None        
+
+
+    def save(self, **kwargs):
+        print(kwargs.get('img'))
+        print(kwargs.get('price'))
+
+        return super().save(**kwargs)   
 
 class ObtainAccessToken(TokenObtainPairSerializer):
-    # username_field = 'email'
-    # email = serializers.EmailField(required = True)
     username_field = 'email'
 
     def validate(self, attrs: Dict[str, Any]) -> Dict[str, str]:
@@ -55,5 +71,7 @@ class ObtainAccessToken(TokenObtainPairSerializer):
             raise serializers.ValidationError({'msg' : "Invaliid credentials"})
 
         return super().validate(attrs)
+
+        
 
     
