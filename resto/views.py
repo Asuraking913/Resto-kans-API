@@ -1,14 +1,12 @@
 from rest_framework import generics
-from .models import User, Product
-from .serializers import UserSerializer, ProductSerializer, ObtainAccessToken
+from .models import User, Product, Order
+from .serializers import UserSerializer, ProductSerializer, ObtainAccessToken, OrderSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import permissions
 from django.http import HttpResponse
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.response import Response
 from django.contrib.auth import get_user_model
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
-from rest_framework.authentication import get_authorization_header
 from rest_framework.exceptions import AuthenticationFailed
 
 def home(response):
@@ -74,6 +72,24 @@ class ProductView(generics.ListCreateAPIView):
             serializer.save()
         else:
             print(serializer.errors)
+
+class OrderView(generics.ListCreateAPIView):
+
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes= [AllowAny]
+
+    def perform_create(self, serializer):
+        if serializer.is_valid(): 
+            user = self.request.user
+
+            if not user or not user.is_authenticated:
+                raise AuthenticationFailed("Please log in to your account")
+
+            product_id = self.request.data.get('product')
+            product = Product.objects.filter(id = product_id).first()
+            serializer.save(user = user, product = product)
+        return super().perform_create(serializer)
 
 
 

@@ -1,5 +1,5 @@
 from typing import Any, Dict
-from .models import User, Product
+from .models import User, Product, Order
 from rest_framework import serializers
 from django.http import HttpResponse
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -59,6 +59,12 @@ class ObtainAccessToken(TokenObtainPairSerializer):
             raise serializers.ValidationError({'msg' : "Invaliid credentials"})
 
         return super().validate(attrs)
+
+class OrderSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = ['product']
 
         
 

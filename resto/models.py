@@ -38,7 +38,7 @@ class Order(models.Model):
     id = models.CharField(max_length=255, default=generate_id, primary_key=True, unique=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    payment_method = models.ForeignKey(PaymentMethod, on_delete= models.CASCADE)
+    # payment_method = models.ForeignKey(PaymentMethod, on_delete= models.CASCADE)
 
 
 class Receipt(models.Model):
