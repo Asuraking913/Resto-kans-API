@@ -48,8 +48,13 @@ class Product(models.Model):
     category = models.CharField(max_length=50, null = False)
     image = models.ImageField()
 
-    
+class Order(models.Model):
+    id = models.CharField(max_length=255, default=generate_id, primary_key=True, unique=True, null=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-
-
-
+class OrderItem(models.Model):
+    id = models.CharField(max_length=255, unique=True, primary_key=True, default=generate_id, null=False)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True, null=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)

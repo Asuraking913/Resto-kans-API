@@ -35,6 +35,10 @@ REST_FRAMEWORK = {
     ), 
     'DEFAULT_PERMISSIONS_CLASSES' : [
         "rest_framework.permissions.AllowAny"
+    ], 
+    'DEFAULT_RENDERER_CLASSESS' : [
+        'rest_framework.renderers.JSONRenderer', 
+        # 'rest_framework.renderers.BrowsableAPIRenderer'
     ]
 }
 
