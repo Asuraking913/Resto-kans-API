@@ -93,9 +93,24 @@ def order_item(request):
 
         return Response(response, status=status.HTTP_201_CREATED)
     
-    if request == 'GET':
-        print('event')
+    elif request.method == 'GET':
+        order_list = Order.objects.all()
+        # print(order_list)
+        response_list = []
+        for order in order_list:
+            for order_item in order.orderitem_set.all():
+                print(order_item)
+                response_list.append({
+                    "order_id" : order.id, 
+                    "products" : {"id" : order_item.product.id, 
+                             "image" : order_item.product.image.url, 
+                             "name" : order_item.product.name, 
+                             "price" : order_item.product.price
+                            }
 
-        return Response({"sdf" : "sdf1"})
+                })
+            # print(response_list)
+
+        return Response({"data" : response_list}, status=status.HTTP_200_OK)
     return Response({"sdf" : "sdf"})
         
