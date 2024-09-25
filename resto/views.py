@@ -15,10 +15,6 @@ import json
 def Home(request):
     return HttpResponse("<h1>This is the home age</h1>")
 
-class CreateUserView(generics.CreateAPIView):
-    serializer_class = UserSerializer
-    permission_classes = [AllowAny]
-
 class ProductView(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
     serializer_class = ProductSerializer
@@ -73,7 +69,23 @@ class ProductView(generics.ListCreateAPIView):
 def order_item(request):
     if request.method == "POST":
         data = request.body
-        data = json.loads(data)['order']
+        try:
+            data = json.loads(data)['order']
+
+            if not isinstance(data, list):
+                return Response({"msg" : "value 'order' must be of array/list"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            for order in data:
+                product_id = order.get("product")
+                quantity = order.get("quantity")
+                if not product_id or not quantity:
+                    return Response({"error" : "List objects has no product and quantity key"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        except json.JSONDecodeError:
+            return Response({"msg" : "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)
+        except KeyError:
+            return Response({"msg" : "payload does not contain a key 'order'"}, status=status.HTTP_400_BAD_REQUEST)
+
 
         new_order = Order.objects.create()
         
