@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import generics
-from .serializers import UserSerializer, ProductSerializer, OrderItemsSerializer
+from .serializers import ProductSerializer, OrderItemsSerializer
 from .models import Product, OrderItem, Order
 from rest_framework.response import Response
 from rest_framework import status
@@ -10,18 +10,24 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
 import json
+from rest_framework.views import APIView
+
 
 # Create your views here.
 def Home(request):
     return HttpResponse("<h1>This is the home age</h1>")
 
 class ProductView(generics.ListCreateAPIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny, IsAuthenticated]
     serializer_class = ProductSerializer
 
     def get_queryset(self):
         product = Product.objects.all()
         return product
+    
+    def perform_create(self, serializer):
+
+        return super().perform_create(serializer)
     
 # class OrderItemsViews(generics.ListCreateAPIView):
 #     serializer_class = OrderItemsSerializer
@@ -86,14 +92,18 @@ def order_item(request):
         except KeyError:
             return Response({"msg" : "payload does not contain a key 'order'"}, status=status.HTTP_400_BAD_REQUEST)
 
-
-        new_order = Order.objects.create()
-        
+        try:
+            user = request.user
+            if not user.is_authenticated:
+                raise ValueError("User is not authenticated")
+            new_order = Order.objects.create(user = user)
+        except ValueError:
+            new_order = Order.objects.create()
+ 
         for order in data:
             product_id = order['product']
             quantity = order['quantity']
             product = Product.objects.filter(id = product_id).first()
-            print(product)
             new_order_items = OrderItem.objects.create(product = product, order = new_order, quantity = quantity)
         response = {
                     "msg" : "Created Order successsfully", 
@@ -107,22 +117,21 @@ def order_item(request):
     
     elif request.method == 'GET':
         order_list = Order.objects.all()
-        # print(order_list)
         response_list = []
         for order in order_list:
-            for order_item in order.orderitem_set.all():
-                print(order_item)
-                response_list.append({
-                    "order_id" : order.id, 
-                    "products" : {"id" : order_item.product.id, 
-                             "image" : order_item.product.image.url, 
-                             "name" : order_item.product.name, 
-                             "price" : order_item.product.price
-                            }
 
-                })
-            # print(response_list)
-
+            response_list.append({
+                "orderId" : order.id,
+                "date" : order.created_at, 
+                "products" : [ 
+                            {
+                                "name" : order_item.product.name, 
+                                "quantity" : order_item.quantity, 
+                                "price" : order_item.product.price, 
+                                "img" : request.build_absolute_uri(order_item.product.image.url), 
+                            } 
+                            for order_item in order.orderitem_set.all()
+                        ]
+            })  
         return Response({"data" : response_list}, status=status.HTTP_200_OK)
     return Response({"sdf" : "sdf"})
-        
