@@ -118,6 +118,7 @@ def order_item(request):
     elif request.method == 'GET':
         order_list = Order.objects.all()
         response_list = []
+
         for order in order_list:
 
             response_list.append({
