@@ -9,6 +9,7 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
+from rest_framework import decorators
 import json
 from rest_framework.views import APIView
 
@@ -91,7 +92,6 @@ def order_item(request):
             return Response({"msg" : "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)
         except KeyError:
             return Response({"msg" : "payload does not contain a key 'order'"}, status=status.HTTP_400_BAD_REQUEST)
-
         try:
             user = request.user
             if not user.is_authenticated:
@@ -118,6 +118,7 @@ def order_item(request):
     elif request.method == 'GET':
         order_list = Order.objects.all()
         response_list = []
+        user = request.user
 
         for order in order_list:
 
