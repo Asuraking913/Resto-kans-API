@@ -139,7 +139,6 @@ def order_item(request):
         except PageNotAnInteger:
             orders = paginator.page(1)
         except EmptyPage:
-            print('event en')
             orders = []
             # orders = paginator.page(paginator.num_pages)
 
@@ -158,8 +157,6 @@ def order_item(request):
                             for order_item in order.orderitem_set.all()
                         ]
             })  
-        print('GET event')
-        print(user)
-        print(len(response_list))
+        print(len(response_list) , 'event')
         return Response({"data" : response_list}, status=status.HTTP_200_OK)
     return Response({"sdf" : "sdf"})
