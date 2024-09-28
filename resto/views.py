@@ -12,6 +12,7 @@ from rest_framework.decorators import api_view
 from rest_framework import decorators
 import json
 from rest_framework.views import APIView
+from django.core.paginator import EmptyPage, Paginator, PageNotAnInteger
 
 
 # Create your views here.
@@ -80,7 +81,7 @@ def order_item(request):
             data = json.loads(data)['order']
 
             if not isinstance(data, list):
-                return Response({"msg" : "value 'order' must be of array/list"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"error" : "value 'order' must be of array/list"}, status=status.HTTP_400_BAD_REQUEST)
             
             for order in data:
                 product_id = order.get("product")
@@ -89,9 +90,9 @@ def order_item(request):
                     return Response({"error" : "List objects has no product and quantity key"}, status=status.HTTP_400_BAD_REQUEST)
             
         except json.JSONDecodeError:
-            return Response({"msg" : "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error" : "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)
         except KeyError:
-            return Response({"msg" : "payload does not contain a key 'order'"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error" : "payload does not contain a key 'order'"}, status=status.HTTP_400_BAD_REQUEST)
         try:
             user = request.user
             if not user.is_authenticated:
@@ -116,11 +117,33 @@ def order_item(request):
         return Response(response, status=status.HTTP_201_CREATED)
     
     elif request.method == 'GET':
-        order_list = Order.objects.all()
-        response_list = []
         user = request.user
+        
+        try:
+            if not user.is_superuser:
+                raise ValueError("")
+            order_list = Order.objects.all()
+        except ValueError:
+            order_list = user.order_set.all()
 
-        for order in order_list:
+        response_list = []
+
+
+        #pagination
+        paginator = Paginator(order_list, 10)
+        page = request.GET.get('page', 1)
+        # print(page, 'event')
+
+        try:
+            orders = paginator.page(page)
+        except PageNotAnInteger:
+            orders = paginator.page(1)
+        except EmptyPage:
+            print('event en')
+            orders = []
+            # orders = paginator.page(paginator.num_pages)
+
+        for order in orders:
 
             response_list.append({
                 "orderId" : order.id,
@@ -135,5 +158,8 @@ def order_item(request):
                             for order_item in order.orderitem_set.all()
                         ]
             })  
+        print('GET event')
+        print(user)
+        print(len(response_list))
         return Response({"data" : response_list}, status=status.HTTP_200_OK)
     return Response({"sdf" : "sdf"})
