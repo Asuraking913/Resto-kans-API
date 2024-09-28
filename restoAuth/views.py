@@ -2,10 +2,18 @@ from django.shortcuts import render
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from .serializers import UserSerializer, CustomTokenSerializer
-# from dj_rest_auth.registration.views import SocialLoginView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from rest_framework_simplejwt import views
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework_simplejwt.tokens import UntypedToken
+from rest_framework.views import APIView
+from rest_framework import status
+from rest_framework_simplejwt.backends import TokenBackend
+from rest_framework_simplejwt.authentication import JWTAuthentication
+import jwt
+from django.conf import settings
+from resto.models import User
 
 # Create your views here.
 
@@ -32,5 +40,35 @@ class CustomTokenObtainView(views.TokenObtainPairView):
         response.set_cookie('access', data['access'], samesite='Lax', secure=True, httponly=True)
 
         return response
+    
+# @api_view(['GET'])
+# def verify_tokens(request):
+#     if request.method == 'GET':
+#         print('Event')
+    
+#     return Response({'error' : "Invalid Request"}, status=status.HTTP_200_OK)
 
+class VerifyToken(APIView):
+
+    def get(self, request: views.Request, *args, **kwargs) -> Response:
+        token = request.COOKIES.get('access')
+        if not token:
+            return Response({'msg' : "Unauthorised"}, status=status.HTTP_401_UNAUTHORIZED)
+        UntypedToken(token)
+        
+
+        decoded_data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        # decoded_data = TokenBackend(algorithm='HS256')
+        # decoded_data = decoded_data.decode(token, verify=True)
+        user = User.objects.filter(id = decoded_data["user_id"]).first
+        if not user:
+            return Response({'msg' : "Unauthorised"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        response = {
+            'is_admin' : decoded_data['is_superuser'], 
+            'is_staff' : decoded_data['is_staff']
+        }
+        
+        return Response(response, status=status.HTTP_200_OK)
+    
 

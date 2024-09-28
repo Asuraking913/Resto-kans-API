@@ -3,16 +3,17 @@ from django.http import HttpResponse, JsonResponse
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import generics
 from .serializers import ProductSerializer, OrderItemsSerializer
-from .models import Product, OrderItem, Order
+from .models import Product, OrderItem, Order, User
 from rest_framework.response import Response
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
-from rest_framework import decorators
+from rest_framework import decorators 
 import json
 from rest_framework.views import APIView
 from django.core.paginator import EmptyPage, Paginator, PageNotAnInteger
+from rest_framework_simplejwt.tokens import AccessToken
 
 
 # Create your views here.
@@ -117,11 +118,14 @@ def order_item(request):
         return Response(response, status=status.HTTP_201_CREATED)
     
     elif request.method == 'GET':
-        user = request.user
-        
+        # user = request.user
+        token = request.COOKIES.get('access')
+
+        access =  AccessToken(token)
+        user = User.objects.filter(id = access['user_id']).first()
         try:
             if not user.is_superuser:
-                raise ValueError("")
+                return Response({"error" : "Unathorized request"}, status=status.HTTP_401_UNAUTHORIZED)
             order_list = Order.objects.all()
         except ValueError:
             order_list = user.order_set.all()
