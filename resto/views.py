@@ -125,7 +125,8 @@ def order_item(request):
         user = User.objects.filter(id = access['user_id']).first()
         try:
             if not user.is_superuser:
-                return Response({"error" : "Unathorized request"}, status=status.HTTP_401_UNAUTHORIZED)
+                # return Response({"error" : "Unathorized request"}, status=status.HTTP_401_UNAUTHORIZED)
+                raise ValueError("Unauthorized")
             order_list = Order.objects.all()
         except ValueError:
             order_list = user.order_set.all()
