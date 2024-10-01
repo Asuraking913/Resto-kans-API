@@ -4,7 +4,6 @@ cffi==1.17.1
 charset-normalizer==3.3.2
 cryptography==43.0.1
 dj-rest-auth==6.0.0
-django
 Django==5.1.1
 django-allauth==65.0.1
 django-cors-headers==4.4.0
