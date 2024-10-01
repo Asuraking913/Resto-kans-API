@@ -43,8 +43,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME" : timedelta(minutes=5),
-    "REFRESH_TOKEN_LIFETIME" : timedelta(minutes=5),
+    "ACCESS_TOKEN_LIFETIME" : timedelta(minutes=40),
+    "REFRESH_TOKEN_LIFETIME" : timedelta(minutes=40),
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY, 
 }
@@ -194,7 +194,7 @@ LOGIN_REDIRECT_URL = 'http://localhost:5173/auth/callback'
 # cors
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-CORS_ALLOWED_ORIGINS = [
-    "https://resto-kans.vercel.app/", 
-    "localhost"
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "https://resto-kans.vercel.app", 
+#     "localhost"
+# ]
