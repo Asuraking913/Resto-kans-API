@@ -194,7 +194,7 @@ LOGIN_REDIRECT_URL = 'http://localhost:5173/auth/callback'
 # cors
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-# CORS_ALLOWED_ORIGINS = [
-#     "https://resto-kans.vercel.app", 
-#     "localhost"
-# ]
+CORS_ALLOWED_ORIGINS = [
+    "https://resto-kans.vercel.app", 
+    "localhost"
+]
