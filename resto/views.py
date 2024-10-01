@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.http import HttpResponse
+from rest_framework.permissions import AllowAny
 from rest_framework import generics
 from .serializers import ProductSerializer, OrderItemsSerializer
 from .models import Product, OrderItem, Order, User
@@ -9,11 +9,10 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from rest_framework.decorators import api_view
-from rest_framework import decorators 
 import json
-from rest_framework.views import APIView
 from django.core.paginator import EmptyPage, Paginator, PageNotAnInteger
 from rest_framework_simplejwt.tokens import AccessToken
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 
 
 # Create your views here.
@@ -118,50 +117,58 @@ def order_item(request):
         return Response(response, status=status.HTTP_201_CREATED)
     
     elif request.method == 'GET':
-        # user = request.user
-        token = request.COOKIES.get('access')
-
-        access =  AccessToken(token)
-        user = User.objects.filter(id = access['user_id']).first()
-        try:
-            if not user.is_superuser:
-                # return Response({"error" : "Unathorized request"}, status=status.HTTP_401_UNAUTHORIZED)
-                raise ValueError("Unauthorized")
-            order_list = Order.objects.all()
-        except ValueError:
-            order_list = user.order_set.all()
-
-        response_list = []
-
-
-        #pagination
-        paginator = Paginator(order_list, 10)
-        page = request.GET.get('page', 1)
-        # print(page, 'event')
 
         try:
-            orders = paginator.page(page)
-        except PageNotAnInteger:
-            orders = paginator.page(1)
-        except EmptyPage:
-            orders = []
-            # orders = paginator.page(paginator.num_pages)
+            user = request.user
+            token = request.COOKIES.get('access')
 
-        for order in orders:
+            if not token:
+                return Response({"error" : "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
 
-            response_list.append({
-                "orderId" : order.id,
-                "date" : order.created_at, 
-                "products" : [ 
-                            {
-                                "name" : order_item.product.name, 
-                                "quantity" : order_item.quantity, 
-                                "price" : order_item.product.price, 
-                                "img" : request.build_absolute_uri(order_item.product.image.url), 
-                            } 
-                            for order_item in order.orderitem_set.all()
-                        ]
-            })  
-        print(len(response_list) , 'event')
-        return Response({"data" : response_list}, status=status.HTTP_200_OK)
+            access =  AccessToken(token)
+            user = User.objects.filter(id = access['user_id']).first()
+            try:
+                if not user.is_superuser:
+                    # return Response({"error" : "Unathorized request"}, status=status.HTTP_401_UNAUTHORIZED)
+                    raise ValueError("Unauthorized")
+                order_list = Order.objects.all()
+            except ValueError:
+                order_list = user.order_set.all()
+
+            response_list = []
+
+
+            #pagination
+            paginator = Paginator(order_list, 10)
+            page = request.GET.get('page', 1)
+            # print(page, 'event')
+
+            try:
+                orders = paginator.page(page)
+            except PageNotAnInteger:
+                orders = paginator.page(1)
+            except EmptyPage:
+                orders = []
+                # orders = paginator.page(paginator.num_pages)
+
+            for order in orders:
+
+                response_list.append({
+                    "total" : len(order.orderitem_set.all()),
+                    "orderId" : order.id,
+                    "date" : order.created_at, 
+                    "products" : [ 
+                                {
+                                    "name" : order_item.product.name, 
+                                    "quantity" : order_item.quantity, 
+                                    "price" : order_item.product.price, 
+                                    "img" : request.build_absolute_uri(order_item.product.image.url), 
+                                } 
+                                for order_item in order.orderitem_set.all()
+                            ]
+                })  
+            print(len(response_list) , 'event', request.GET.get('page'))
+            return Response({"data" : response_list}, status=status.HTTP_200_OK)
+        except TokenError:
+            return Response({"error" : "wer"}, status=status.HTTP_401_UNAUTHORIZED)
     return Response({"sdf" : "sdf"})

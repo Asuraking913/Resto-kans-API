@@ -23,5 +23,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/", include("resto.urls")),
     path("api/auth/", include("restoAuth.urls")),
-    # path('accounts/', include('allauth.urls'))
+    path('accounts/', include('allauth.urls'))
 ] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

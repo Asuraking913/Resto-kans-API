@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path,  include
 from .views import CreateUserView, CustomTokenObtainView, VerifyToken
 
 urlpatterns = [
@@ -6,4 +6,5 @@ urlpatterns = [
     # path("login/user/", TokenObtainPairView.as_view(), name = "Login user"), 
     path("login/user/", CustomTokenObtainView.as_view(), name = "Login user"), 
     path("verify/user/", VerifyToken.as_view(), name = "Login user"), 
+    # path("accounts", include("allauth.urls"))
 ]

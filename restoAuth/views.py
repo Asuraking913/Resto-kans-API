@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework_simplejwt.tokens import UntypedToken
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework_simplejwt.backends import TokenBackend
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.authentication import JWTAuthentication
 import jwt
 from django.conf import settings
@@ -51,24 +51,28 @@ class CustomTokenObtainView(views.TokenObtainPairView):
 class VerifyToken(APIView):
 
     def get(self, request: views.Request, *args, **kwargs) -> Response:
-        token = request.COOKIES.get('access')
-        if not token:
-            return Response({'msg' : "Unauthorised"}, status=status.HTTP_401_UNAUTHORIZED)
-        UntypedToken(token)
-        
+        try:
+            token = request.COOKIES.get('access')
+            if not token:
+                return Response({'msg' : "Unauthorised"}, status=status.HTTP_401_UNAUTHORIZED)
+            UntypedToken(token)
 
-        decoded_data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        # decoded_data = TokenBackend(algorithm='HS256')
-        # decoded_data = decoded_data.decode(token, verify=True)
-        user = User.objects.filter(id = decoded_data["user_id"]).first
-        if not user:
+
+            decoded_data = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+            # decoded_data = TokenBackend(algorithm='HS256')
+            # decoded_data = decoded_data.decode(token, verify=True)
+            user = User.objects.filter(id = decoded_data["user_id"]).first
+            if not user:
+                return Response({'msg' : "Unauthorised"}, status=status.HTTP_401_UNAUTHORIZED)
+
+            response = {
+                'is_admin' : decoded_data['is_superuser'], 
+                'is_staff' : decoded_data['is_staff']
+            }
+
+            return Response(response, status=status.HTTP_200_OK)
+        except TokenError:
             return Response({'msg' : "Unauthorised"}, status=status.HTTP_401_UNAUTHORIZED)
-        
-        response = {
-            'is_admin' : decoded_data['is_superuser'], 
-            'is_staff' : decoded_data['is_staff']
-        }
-        
-        return Response(response, status=status.HTTP_200_OK)
+            
     
 
