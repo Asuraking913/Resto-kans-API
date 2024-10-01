@@ -37,7 +37,7 @@ class CustomTokenObtainView(views.TokenObtainPairView):
             'access' : data['access']
         })
 
-        response.set_cookie('access', data['access'], samesite='Lax', secure=True, httponly=True)
+        response.set_cookie('access', data['access'], samesite='None', secure=True, httponly=True)
 
         return response
     
