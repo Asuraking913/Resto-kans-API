@@ -7,7 +7,7 @@
         "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
       },
       {
-        "src": "RestoKans/wsgi.py",
+        "src": "build_files.sh",
         "use": "@vercel/static-build",
         "config": {
           "distDir": "staticfiles"
@@ -23,5 +23,9 @@
         "src": "/(.*)",
         "dest": "RestoKans/wsgi.py"
       }
-    ]
+    ],
+    "env": {
+        "DJANGO_SETTINGS_MODULE": "RestoKans.settings",
+        "DATABASE_URL": "postgresql://postgres.famijukfsuukluwknqtd:fY1nOIuCru0qGhtC@aws-0-eu-central-1.pooler.supabase.com:6543/postgres"
+      }
   }
