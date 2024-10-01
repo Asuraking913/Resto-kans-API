@@ -6,5 +6,4 @@ urlpatterns = [
     # path("login/user/", TokenObtainPairView.as_view(), name = "Login user"), 
     path("login/user/", CustomTokenObtainView.as_view(), name = "Login user"), 
     path("verify/user/", VerifyToken.as_view(), name = "Login user"), 
-    # path("accounts", include("allauth.urls"))
 ]

@@ -168,8 +168,9 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-AUTH_USER_MODEL = 'resto.User'
-SOCIALACCOUNT_PROVIDERS = {}
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
+AUTH_USER_MODEL = 'resto.User'  
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+ACCOUNT_AUTHENTICATION_METHOD  = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = "none"
+# LOGIN_REDIRECT_URL = 'http://localhost:5173/auth/callback'
+
