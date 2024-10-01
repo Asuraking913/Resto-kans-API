@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-r1rgs-#z#47e)i8pus7kvtypq&x*nym67r#fvx3&g@@ra@8_l(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["https://resto-kans.vercel.app/"]
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -189,4 +189,7 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 ACCOUNT_AUTHENTICATION_METHOD  = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 LOGIN_REDIRECT_URL = 'http://localhost:5173/auth/callback'
-
+CORS_ALLOWED_ORIGINS = [
+    "https://resto-kans.vercel.app/", 
+    "localhost"
+]
