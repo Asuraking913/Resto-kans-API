@@ -63,7 +63,7 @@ INSTALLED_APPS = [
     "restoAuth",
     "rest_framework",   
     
-    # "corsheaders"
+    "corsheaders"
 
 
     'allauth',
@@ -83,6 +83,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "allauth.account.middleware.AccountMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'RestoKans.urls'
