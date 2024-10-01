@@ -150,6 +150,9 @@ def order_item(request):
             except EmptyPage:
                 orders = []
                 # orders = paginator.page(paginator.num_pages)
+            if len(orders) <= 0:
+                return Response({"data" : []}, status=status.HTTP_200_OK)
+
 
             for order in orders:
 
@@ -167,7 +170,6 @@ def order_item(request):
                                 for order_item in order.orderitem_set.all()
                             ]
                 })  
-            print(len(response_list) , 'event', request.GET.get('page'))
             return Response({"data" : response_list}, status=status.HTTP_200_OK)
         except TokenError:
             return Response({"error" : "wer"}, status=status.HTTP_401_UNAUTHORIZED)
