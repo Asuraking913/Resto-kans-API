@@ -3,18 +3,25 @@
     "builds": [
       {
         "src": "RestoKans/wsgi.py",
-        "use": "@vercel/python"
+        "use": "@vercel/python",
+        "config": { "maxLambdaSize": "15mb", "runtime": "python3.9" }
+      },
+      {
+        "src": "build_files.sh",
+        "use": "@vercel/static-build",
+        "config": {
+          "distDir": "staticfiles"
+        }
       }
     ],
     "routes": [
       {
+        "src": "/static/(.*)",
+        "dest": "/static/$1"
+      },
+      {
         "src": "/(.*)",
-        "dest": "manage.py"
+        "dest": "RestoKans/wsgi.py"
       }
-    ],
-    "env": {
-      "DJANGO_SETTINGS_MODULE": "server.settings",
-      "DATABASE_URL": "postgresql://postgres.famijukfsuukluwknqtd:fY1nOIuCru0qGhtC@aws-0-eu-central-1.pooler.supabase.com:6543/postgres"
-    }
+    ]
   }
-  
