@@ -121,6 +121,7 @@ def order_item(request):
         try:
             user = request.user
             token = request.COOKIES.get('access')
+            print(token)
 
             if not token:
                 return Response({"error" : "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
