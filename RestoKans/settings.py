@@ -43,8 +43,8 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME" : timedelta(minutes=1),
-    "REFRESH_TOKEN_LIFETIME" : timedelta(minutes=1),
+    "ACCESS_TOKEN_LIFETIME" : timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME" : timedelta(minutes=5),
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY, 
 }
@@ -118,13 +118,25 @@ WSGI_APPLICATION = 'RestoKans.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',          # The name of your PostgreSQL database
+        'USER': 'postgres.famijukfsuukluwknqtd',         # Your PostgreSQL username
+        'PASSWORD': 'fY1nOIuCru0qGhtC', # Your PostgreSQL user's password
+        'HOST': 'aws-0-eu-central-1.pooler.supabase.com',      # Or the IP address if the database is hosted elsewhere
+        'PORT': '6543',           # Default PostgreSQL port
     }
 }
 
+# user=postgres.famijukfsuukluwknqtd password=[YOUR-PASSWORD] host=aws-0-eu-central-1.pooler.supabase.com port=6543 dbname=postgres
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -172,5 +184,5 @@ AUTH_USER_MODEL = 'resto.User'
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 ACCOUNT_AUTHENTICATION_METHOD  = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
-# LOGIN_REDIRECT_URL = 'http://localhost:5173/auth/callback'
+LOGIN_REDIRECT_URL = 'http://localhost:5173/auth/callback'
 
