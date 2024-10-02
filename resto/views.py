@@ -12,16 +12,22 @@ from rest_framework.decorators import api_view
 import json
 from django.core.paginator import EmptyPage, Paginator, PageNotAnInteger
 from rest_framework_simplejwt.tokens import AccessToken
-from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework.pagination import PageNumberPagination
 
 
 # Create your views here.
 def Home(request):
     return HttpResponse("<h1>This is the home age</h1>")
 
+class CustomPagination(PageNumberPagination):
+    page_size = 10
+    page_query_param = 'page'
+
 class ProductView(generics.ListCreateAPIView):
     # permission_classes = [AllowAny, IsAuthenticated]
     serializer_class = ProductSerializer
+    pagination_class = CustomPagination
 
     def get_queryset(self):
         product = Product.objects.all()

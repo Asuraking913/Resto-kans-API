@@ -33,13 +33,14 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ), 
+    
     'DEFAULT_PERMISSIONS_CLASSES' : [
         "rest_framework.permissions.AllowAny"
     ], 
     'DEFAULT_RENDERER_CLASSESS' : [
         'rest_framework.renderers.JSONRenderer', 
         # 'rest_framework.renderers.BrowsableAPIRenderer'
-    ]
+    ],
 }
 
 SIMPLE_JWT = {
@@ -122,23 +123,23 @@ WSGI_APPLICATION = 'RestoKans.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',          # The name of your PostgreSQL database
-        'USER': 'postgres.famijukfsuukluwknqtd',         # Your PostgreSQL username
-        'PASSWORD': 'fY1nOIuCru0qGhtC', # Your PostgreSQL user's password
-        'HOST': 'aws-0-eu-central-1.pooler.supabase.com',      # Or the IP address if the database is hosted elsewhere
-        'PORT': '6543',           # Default PostgreSQL port
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'postgres',          # The name of your PostgreSQL database
+#         'USER': 'postgres.famijukfsuukluwknqtd',         # Your PostgreSQL username
+#         'PASSWORD': 'fY1nOIuCru0qGhtC', # Your PostgreSQL user's password
+#         'HOST': 'aws-0-eu-central-1.pooler.supabase.com',      # Or the IP address if the database is hosted elsewhere
+#         'PORT': '6543',           # Default PostgreSQL port
+#     }
+# }
 
 # user=postgres.famijukfsuukluwknqtd password=[YOUR-PASSWORD] host=aws-0-eu-central-1.pooler.supabase.com port=6543 dbname=postgres
 
