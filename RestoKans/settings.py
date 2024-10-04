@@ -13,9 +13,22 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from datetime import timedelta
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# ENV
+user = os.getenv('USERNAME')
+name = os.getenv('NAME')
+password = os.getenv('PASSWORD')
+host = os.getenv('HOST')
+port = os.getenv('PORT')
+engine = os.getenv('ENGINE')
+
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -132,12 +145,12 @@ WSGI_APPLICATION = 'RestoKans.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',          # The name of your PostgreSQL database
-        'USER': 'postgres.famijukfsuukluwknqtd',         # Your PostgreSQL username
-        'PASSWORD': 'fY1nOIuCru0qGhtC', # Your PostgreSQL user's password
-        'HOST': 'aws-0-eu-central-1.pooler.supabase.com',      # Or the IP address if the database is hosted elsewhere
-        'PORT': '6543',           # Default PostgreSQL port
+        'ENGINE': engine,
+        'NAME': name,          # The name of your PostgreSQL database
+        'USER': user,         # Your PostgreSQL username
+        'PASSWORD': password, # Your PostgreSQL user's password
+        'HOST': host,      # Or the IP address if the database is hosted elsewhere
+        'PORT': 3306,           # Default PostgreSQL port
     }
 }
 
