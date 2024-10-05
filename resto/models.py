@@ -47,6 +47,7 @@ class Product(models.Model):
     available_stock = models.PositiveIntegerField(null=False)
     category = models.CharField(max_length=50, null = False)
     image = models.ImageField()
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
 class Order(models.Model):
     id = models.CharField(max_length=255, default=generate_id, primary_key=True, unique=True, null=False)
