@@ -175,8 +175,9 @@ def order_item(request):
                                 } 
                                 for order_item in order.orderitem_set.all()
                             ]
-                })  
-            return Response({"data" : response_list}, status=status.HTTP_200_OK)
+                }) 
+            return Response({"data" : list(reversed(response_list))}, status=status.HTTP_200_OK)
+            
         except TokenError:
-            return Response({"error" : "wer"}, status=status.HTTP_401_UNAUTHORIZED)
-    return Response({"sdf" : "sdf"})
+            return Response({"error" : "Invalid Token"}, status=status.HTTP_401_UNAUTHORIZED)
+    return Response({"error" : "Invalid Request"}, status=status.HTTP_401_UNAUTHORIZED)
