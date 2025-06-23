@@ -1,3 +1,4 @@
+from random import choices
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from uuid import uuid4
@@ -33,12 +34,34 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     USERNAME_FIELD = 'email'
     username = None
+    role_choices = (
+            ('hire', 'hire'),
+            ('freelance', 'freelance'),
+        )
+
     id = models.CharField(max_length=255, primary_key= True, default = generate_id, null=False)
     email = models.EmailField(max_length=255, unique=True, null=False)
-    address_default = models.CharField(max_length=255)
+    address_default = models.CharField(max_length=255, blank=True)
+    first_name = models.CharField(max_length = 255, blank=True)
+    last_name = models.CharField(max_length = 255, blank=True)
+    phone_number = models.CharField(max_length = 255, blank=True)
+    location = models.TextField(blank=True)
+    role  = models.CharField(choices = role_choices, max_length = 255, null=False)
 
     REQUIRED_FIELDS = []
     objects = UserManager()
+
+class Profile(models.Model):
+    job_title = models.CharField(max_length = 255)
+    experience = models.IntegerField(default = 1)
+    hourly_rate = models.FloatField()
+    languages = models.CharField(max_length = 255)
+    Bio = models.TextField()
+    skills = models.TextField()
+    education = models.TextField()
+    website_link = models.CharField(max_length = 255)
+    linkdeln_link = models.CharField(max_length = 255)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class Product(models.Model):
     id = models.CharField(max_length=255, primary_key= True, default = generate_id, null = False)

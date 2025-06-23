@@ -30,11 +30,14 @@ class CustomTokenObtainView(views.TokenObtainPairView):
         serializer.is_valid(raise_exception=True)
 
         data = serializer.validated_data
+        request_data = request.data
+        user = User.objects.get(email = request_data['email'])
 
         response = Response({
             'is_admin' : data['is_admin'], 
             'is_staff' : data['is_staff'], 
-            'access' : data['access']
+            'access' : data['access'], 
+            'role' : user.role
         })
 
         response.set_cookie('access', data['access'], samesite='None', secure=True, httponly=True)

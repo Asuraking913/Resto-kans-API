@@ -139,8 +139,10 @@ def order_item(request):
                     # return Response({"error" : "Unathorized request"}, status=status.HTTP_401_UNAUTHORIZED)
                     raise ValueError("Unauthorized")
                 order_list = Order.objects.all().order_by("-created_at")
+                length = len(Order.objects.all())
             except ValueError:
                 order_list = user.order_set.all().order_by("-created_at")
+                length = len(Order.objects.all())
 
             response_list = []
 
@@ -177,7 +179,7 @@ def order_item(request):
                                 for order_item in order.orderitem_set.all()
                             ]
                 }) 
-            return Response({"data" : response_list}, status=status.HTTP_200_OK)
+            return Response({"data" : response_list, "length" : length}, status=status.HTTP_200_OK)
             
         except TokenError:
             return Response({"error" : "Invalid Token"}, status=status.HTTP_401_UNAUTHORIZED)
