@@ -1,9 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import generics
-from .serializers import ProductSerializer, OrderItemsSerializer
-from .models import Product, OrderItem, Order, User
+from .serializers import JobSerializer, ProductSerializer, OrderItemsSerializer
+from .models import Product, OrderItem, Order, User, Job
 from rest_framework.response import Response
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
@@ -20,6 +20,20 @@ from rest_framework.pagination import PageNumberPagination
 def Home(request):
     return HttpResponse("<h1>This is the home age</h1>")
 
+class CreateJobView(generics.ListCreateAPIView):
+    serializer_class = JobSerializer
+
+    def get_queryset(self):
+
+        job = Job.objects.all()
+
+        return job
+
+    def perform_create(self, serializer):
+        user_id = self.request.data.get('user_id')
+        user = User.objects.get(id = user_id)
+        serializer.save(user = user)
+
 class CustomPagination(PageNumberPagination):
     page_size = 10
     page_query_param = 'page'
@@ -35,7 +49,6 @@ class ProductView(generics.ListCreateAPIView):
         return product
     
     def perform_create(self, serializer):
-
         return super().perform_create(serializer)
     
 # class OrderItemsViews(generics.ListCreateAPIView):

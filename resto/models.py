@@ -1,4 +1,5 @@
-from random import choices
+from email.policy import default
+from random import choice, choices
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from uuid import uuid4
@@ -52,16 +53,65 @@ class User(AbstractUser):
     objects = UserManager()
 
 class Profile(models.Model):
+    id = models.CharField(max_length = 255, unique = True, null = False, default = generate_id, primary_key = True)
     job_title = models.CharField(max_length = 255)
     experience = models.IntegerField(default = 1)
     hourly_rate = models.FloatField()
     languages = models.CharField(max_length = 255)
-    Bio = models.TextField()
+    bio = models.TextField()
     skills = models.TextField()
     education = models.TextField()
     website_link = models.CharField(max_length = 255)
     linkdeln_link = models.CharField(max_length = 255)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+class Job(models.Model):
+
+    type_choices = (
+            ('one', 'subscription'),
+            ('con', 'contract'),
+        )
+    size_choices = (
+                ("1", 'Writing'),
+                ("2", 'Design'),
+                ("3", 'Development'),
+                ("4", 'Marketing'),
+                ("5", 'Management'),
+                ("6", 'Data Entry'),
+                ("7", 'Customer Service'),
+                ("8", 'Translation'), 
+                ("9", 'others')
+            )
+
+    company_size_choices = (
+            ("1", '1-10'),
+            ("2", '11-50'),
+            ("3", '51-200'),
+            ("4", '201-500'),
+            ("5", '500+'),
+            
+        )
+
+    payment_type_choices = (
+            ("1", "Fixed Price"),
+            ("2", "Monthly"),
+        )
+
+    id = models.CharField(max_length = 255, unique = True, null = False, default = generate_id, primary_key = True)
+    job_title = models.CharField(max_length = 255)
+    job_type = models.CharField(max_length = 255, choices=type_choices)
+    location = models.CharField(max_length = 255)
+    description = models.TextField()
+    category = models.CharField(max_length = 255, choices = size_choices)
+    payment_type = models.CharField(max_length = 255, choices = payment_type_choices)
+    min_budget = models.CharField(max_length = 150)
+    max_budget = models.CharField(max_length = 150)
+    company_size = models.CharField(max_length = 255, choices = company_size_choices)
+    required_skills = models.CharField(max_length = 400)
+    special_skills = models.CharField(max_length = 255, default = '')
+    duration = models.CharField(max_length = 255)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank = "")
+
 
 class Product(models.Model):
     id = models.CharField(max_length=255, primary_key= True, default = generate_id, null = False)

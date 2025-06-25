@@ -1,11 +1,31 @@
 from rest_framework import serializers
-from .models import User, Product, Order, OrderItem
+from .models import Job, User, Product, Order, OrderItem
 
+class JobSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Job
+        fields = [
+        'job_title', 
+        'job_type', 
+        'location', 
+        'description', 
+        'category', 
+        'payment_type', 
+        'min_budget', 
+        'max_budget',
+        'company_size',
+        'required_skills',
+        'special_skills',
+        'duration'
+        ]
+
+        
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'role']
+        fields = ['email', 'password', 'role', 'first_name', 'last_name']
         extra_kwargs = {"password" : {"write_only" : True}}
     
     def create(self, validated_data):   

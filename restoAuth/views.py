@@ -37,7 +37,8 @@ class CustomTokenObtainView(views.TokenObtainPairView):
             'is_admin' : data['is_admin'], 
             'is_staff' : data['is_staff'], 
             'access' : data['access'], 
-            'role' : user.role
+            'role' : user.role, 
+            'user_id' : user.id
         })
 
         response.set_cookie('access', data['access'], samesite='None', secure=True, httponly=True)
