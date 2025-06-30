@@ -104,14 +104,14 @@ class Job(models.Model):
     description = models.TextField()
     category = models.CharField(max_length = 255, choices = size_choices)
     payment_type = models.CharField(max_length = 255, choices = payment_type_choices)
-    min_budget = models.CharField(max_length = 150)
-    max_budget = models.CharField(max_length = 150)
+    min_budget = models.IntegerField()
+    max_budget = models.IntegerField()
     company_size = models.CharField(max_length = 255, choices = company_size_choices)
     required_skills = models.CharField(max_length = 400)
     special_skills = models.CharField(max_length = 255, default = '')
     duration = models.CharField(max_length = 255)
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank = "")
-
+    # deadline date
 
 class Product(models.Model):
     id = models.CharField(max_length=255, primary_key= True, default = generate_id, null = False)

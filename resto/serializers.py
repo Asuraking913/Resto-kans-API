@@ -3,9 +3,15 @@ from .models import Job, User, Product, Order, OrderItem
 
 class JobSerializer(serializers.ModelSerializer):
 
+    job_type_display = serializers.CharField(source='get_job_type_display', read_only=True)
+    category_display = serializers.CharField(source='get_category_display', read_only=True)
+    payment_type_display = serializers.CharField(source='get_payment_type_display', read_only=True)
+    company_size_display = serializers.CharField(source='get_company_size_display', read_only=True)
+
     class Meta:
         model = Job
         fields = [
+        'id',
         'job_title', 
         'job_type', 
         'location', 
@@ -17,8 +23,14 @@ class JobSerializer(serializers.ModelSerializer):
         'company_size',
         'required_skills',
         'special_skills',
-        'duration'
+        'duration',
+        'job_type_display',
+        'category_display',
+        'payment_type_display',
+        'company_size_display',
         ]
+
+        extra_kwargs = {"id" : { "read_only" : True }}
 
         
 class UserSerializer(serializers.ModelSerializer):
