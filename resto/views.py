@@ -2,8 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import generics
-from .serializers import JobSerializer, ProductSerializer, OrderItemsSerializer
-from .models import Product, OrderItem, Order, User, Job
+from rest_framework.views import APIView
+from .serializers import JobApplySerializer, JobSerializer, ProductSerializer, OrderItemsSerializer
+from .models import Apply, Product, OrderItem, Order, User, Job
 from rest_framework.response import Response
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
@@ -51,149 +52,89 @@ class ProductView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         return super().perform_create(serializer)
     
-# class OrderItemsViews(generics.ListCreateAPIView):
-#     serializer_class = OrderItemsSerializer
-#     permission_classes = [AllowAny]
 
-#     def create(self, request, *args, **kwargs):
-#         # try:
-#             serializer = self.get_serializer(data = request.data['order'], many = True)
-#             # print(serializer)
-#             if serializer.is_valid():
-#                 self.perform_create(serializer)
-#                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-#             return HttpResponse('failed')
-#         # except:
-#         #     return Response({"msg" : "Expected a List/Array Item"}, status=status.HTTP_400_BAD_REQUEST)
 
-#     def perform_create(self, serializer):
-#         # print(serializer.data, "event")
-#         for orders in serializer.data:
-#             new_order = Order.objects.create()
-#             product_id = orders['product']
-#             quantity = orders['quantity']
-#             product = Product.objects.filter(id = product_id).first()
-#             order_item = OrderItem.objects.create(product = product, order = new_order, quantity = quantity)
 
-#             serializer.save(product = product, quantity = quantity, order = new_order)
+class order_item(APIView):
 
-    # def perform_create(self, serializer):
+    def post(self, request):
 
-    #     order_items_data = self.request.get('order', [])
-    #     serializer = OrderItemsSerializer(data=order_items_data, many = True)
+        serializer = JobApplySerializer( data = request.data)
 
-    #     if serializer.is_valid():
-    #         new_order = Order.objects.create()
-    #         product = serializer.validated_data.get('product')
-    #         quantity = serializer.validated_data.get('quantity')
-    #         # product = Product.objects.filter(name = "").first()
-    #         # print(product, product_id.price)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_401_UNAUTHORIZED )
 
-    #     return serializer.save(product = product, order = new_order, quantity = quantity)
+        user_id = serializer.validated_data['user_id']
+        job_id = serializer.validated_data['job_id']
 
-@csrf_exempt
-@api_view(['POST', 'GET'])
-@require_http_methods(['GET', 'POST'])
-def order_item(request):
-    if request.method == "POST":
-        data = request.body
-        try:
-            data = json.loads(data)['order']
+        list_apply = Apply.objects.all()
 
-            if not isinstance(data, list):
-                return Response({"error" : "value 'order' must be of array/list"}, status=status.HTTP_400_BAD_REQUEST)
-            
-            for order in data:
-                product_id = order.get("product")
-                quantity = order.get("quantity")
-                if not product_id or not quantity:
-                    return Response({"error" : "List objects has no product and quantity key"}, status=status.HTTP_400_BAD_REQUEST)
-            
-        except json.JSONDecodeError:
-            return Response({"error" : "Invalid payload"}, status=status.HTTP_400_BAD_REQUEST)
-        except KeyError:
-            return Response({"error" : "payload does not contain a key 'order'"}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            user = request.user
-            if not user.is_authenticated:
-                raise ValueError("User is not authenticated")
-            new_order = Order.objects.create(user = user)
-        except ValueError:
-            new_order = Order.objects.create()
- 
-        for order in data:
-            product_id = order['product']
-            quantity = order['quantity']
-            product = Product.objects.filter(id = product_id).first()
-            new_order_items = OrderItem.objects.create(product = product, order = new_order, quantity = quantity)
+        for applications in list_apply:
+            if applications.job.id == job_id and applications.user.id == user_id:
+                response = {
+                    "msg" : "This user already applied for this job"
+                }  
+
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.get(id = user_id)
+        job = Job.objects.get(id = job_id)
+
+        new_application = Apply(user = user, job = job)
+        new_application.save()
+
         response = {
-                    "msg" : "Created Order successsfully", 
-                    "data" :
-                        {
-                            "order_id" : new_order.id, 
-                        }
+            "msg" : "Application Successful"
         }
 
         return Response(response, status=status.HTTP_201_CREATED)
-    
-    elif request.method == 'GET':
+
+
+    def get(self, request):
+        user_id = request.query_params.get('id')
 
         try:
-            user = request.user
-            token = request.COOKIES.get('access')
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"msg": "User not found"}, status=status.HTTP_404_NOT_FOUND)
 
-            if not token:
-                return Response({"error" : "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+        list_jobs = Job.objects.filter(user=user)
+        apply_list = Apply.objects.all()
 
-            access =  AccessToken(token)
-            user = User.objects.filter(id = access['user_id']).first()
-            try:
-                if not user.is_superuser:
-                    # return Response({"error" : "Unathorized request"}, status=status.HTTP_401_UNAUTHORIZED)
-                    raise ValueError("Unauthorized")
-                order_list = Order.objects.all().order_by("-created_at")
-                length = len(Order.objects.all())
-            except ValueError:
-                order_list = user.order_set.all().order_by("-created_at")
-                length = len(Order.objects.all())
+        serializer = JobSerializer(list_jobs, many=True)
 
-            response_list = []
+        send_list = []
+
+        for job in list_jobs:
+            for app in apply_list:
+                if job.id == app.job.id:
+                    new_data = {
+                        "id" : app.user.id, 
+                        "profile_id" : "2", 
+                        "job_title" : job.job_title, 
+                        "experience" : "3",
+                        "hourly_rate" : 12500.00,
+                        "languages": "English", 
+                        "bio" : "Hello",
+                        "skills" : "Hello", 
+                        "education" : "Hello",
+                        "website_link": "https://emilyrodriguez.analytics",
+                        "linkedin_link": "https://linkedin.com/in/emily-rodriguez-data",
+                        "name": f"{app.user.first_name} {app.user.last_name}",
+                        "email": app.user.email,
+                        "phone": app.user.phone_number,
+                        "location": app.user.address_default,
+                        "jobId": app.job.id,
+                        "appliedDate": "2024-06-23",
+                        "expectedSalary": 520000,
+                        "status": "pending",
+                        "rating": 4.2,
+                        "avatar": "ER"
+                    }
+
+                    send_list.append(new_data)
 
 
-            #pagination
-            paginator = Paginator(order_list, 10)
-            page = request.GET.get('page', 1)
-            # print(page, 'event')
 
-            try:
-                orders = paginator.page(page)
-            except PageNotAnInteger:
-                orders = paginator.page(1)
-            except EmptyPage:
-                orders = []
-                # orders = paginator.page(paginator.num_pages)
-            if len(orders) <= 0:
-                return Response({"data" : []}, status=status.HTTP_200_OK)
-
-
-            for order in orders:
-
-                response_list.append({
-                    "total" : len(order.orderitem_set.all()),
-                    "orderId" : order.id,
-                    "date" : order.created_at, 
-                    "products" : [ 
-                                {
-                                    "name" : order_item.product.name, 
-                                    "quantity" : order_item.quantity, 
-                                    "price" : order_item.product.price, 
-                                    "img" : request.build_absolute_uri(order_item.product.image.url), 
-                                } 
-                                for order_item in order.orderitem_set.all()
-                            ]
-                }) 
-            return Response({"data" : response_list, "length" : length}, status=status.HTTP_200_OK)
-            
-        except TokenError:
-            return Response({"error" : "Invalid Token"}, status=status.HTTP_401_UNAUTHORIZED)
-    return Response({"error" : "Invalid Request"}, status=status.HTTP_401_UNAUTHORIZED)
+    
+        return Response({"data" : serializer.data, "app" : send_list}, status=status.HTTP_200_OK)

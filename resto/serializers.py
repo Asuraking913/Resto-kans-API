@@ -1,6 +1,11 @@
 from rest_framework import serializers
 from .models import Job, User, Product, Order, OrderItem
 
+class JobApplySerializer(serializers.Serializer):
+
+    user_id = serializers.CharField()
+    job_id = serializers.CharField()
+
 class JobSerializer(serializers.ModelSerializer):
 
     job_type_display = serializers.CharField(source='get_job_type_display', read_only=True)

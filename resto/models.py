@@ -113,6 +113,13 @@ class Job(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank = "")
     # deadline date
 
+
+class Apply(models.Model):
+    id = models.CharField(max_length=255, primary_key= True, default = generate_id, null = False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE)
+    user_doc = models.FileField(blank = True)
+
 class Product(models.Model):
     id = models.CharField(max_length=255, primary_key= True, default = generate_id, null = False)
     name  = models.CharField(max_length=50)
@@ -129,6 +136,6 @@ class Order(models.Model):
 
 class OrderItem(models.Model):
     id = models.CharField(max_length=255, unique=True, primary_key=True, default=generate_id, null=False)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, blank=True, null=True)
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, blank=True, null=True)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
