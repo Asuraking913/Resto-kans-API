@@ -3,8 +3,8 @@ from django.http import HttpResponse
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import generics
 from rest_framework.views import APIView
-from .serializers import JobApplySerializer, JobSerializer, ProductSerializer, OrderItemsSerializer
-from .models import Apply, Product, OrderItem, Order, User, Job
+from .serializers import JobApplySerializer, JobSerializer, ProductSerializer, OrderItemsSerializer, UserProfileSerializer
+from .models import Apply, Product, OrderItem, Order, Profile, User, Job
 from rest_framework.response import Response
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
@@ -20,6 +20,116 @@ from rest_framework.pagination import PageNumberPagination
 # Create your views here.
 def Home(request):
     return HttpResponse("<h1>This is the home age</h1>")
+
+
+class GetUserInformationView(APIView):
+
+    def get(self, request):
+        user_id = request.query_params.get('id')
+        user = User.objects.get(id = user_id)
+
+        if user:
+
+            try:
+
+                profile = Profile.objects.get(user = user)
+
+
+            except Exception as e:
+
+                profile = Profile(user = user)
+                print('Intiated')
+                profile.save()
+
+    
+            response = {
+                'first_name' : user.first_name if user.first_name else "",
+                'last_name' : user.last_name if user.last_name else "",
+                'phone' : user.phone_number if user.phone_number else "",
+                'location' : user.address_default if user.address_default else "",
+                'email' : user.email if user.email else "",
+                'job_title' : profile.job_title if profile.job_title else "",
+                'experience' : profile.experience if profile.experience else "",
+                'hourly_rate' : profile.hourly_rate if profile.hourly_rate else "",
+                'languages' : profile.languages if profile.languages else "",
+                'bio' : profile.bio if profile.bio else "", 
+                'skills' : profile.skills if profile.skills else "",
+                'education' : profile.education if profile.education else "",
+                'website_link' : profile.website_link if profile.website_link else "",
+                'linkedin_link' : profile.linkdeln_link if profile.linkdeln_link else "",
+            }
+        
+            return Response(response, status = status.HTTP_200_OK)
+        return Response({
+                "error" : "Invalid User Credentials"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request):
+
+        user_id = self.request.data['id']
+        experience = self.request.data['experience']
+        hourly_rate = self.request.data['hourly_rate']
+        languages = self.request.data['languages']
+        bio = self.request.data['bio']
+        skills = self.request.data['skills']
+        website_link = self.request.data['website_link']
+        linkdeln_link = self.request.data['linkedin_link']
+        first_name = self.request.data['first_name']
+        last_name = self.request.data['last_name']
+        email = self.request.data['email']
+        location = self.request.data['location']
+        education = self.request.data['education']
+        phone = self.request.data['phone_number']
+        job_title = self.request.data['job_title']
+
+        # validation
+        if not user_id: 
+            return Response({
+                "msg" : "Invalid user id"
+             })
+
+
+        user = User.objects.get(id = user_id)
+        profile = Profile.objects.get(user = user)
+
+        user.location = location
+        user.first_name = first_name, 
+        user.phone_number = phone
+        user.email = email 
+        user.save()
+
+        profile.experience = experience
+        profile.hourly_rate = hourly_rate
+        profile.bio = bio
+        profile.languages = languages
+        profile.skills = skills
+        profile.website_link = website_link
+        profile.education = education
+        profile.linkdeln_link = linkdeln_link
+        profile.job_title = job_title
+        profile.save()
+
+        response_data = {
+            'job_title' : profile.job_title,
+            'experience' : profile.experience,
+            'hourly_rate' : profile.experience, 
+            'languages' : profile.languages, 
+            'bio' : profile.bio,
+            'skills' : profile.skills, 
+            'education' : profile.education,
+            'website_link' : profile.website_link, 
+            'linkedin_link' : profile.linkdeln_link,
+            'id' : user.id, 
+            'first_name' : user.first_name, 
+            'last_name' : user.last_name, 
+            'phone_number' : user.phone_number, 
+            'location' : user.location, 
+            'email' : user.email, 
+            'role' : user.role
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
 
 class CreateJobView(generics.ListCreateAPIView):
     serializer_class = JobSerializer
@@ -104,37 +214,41 @@ class order_item(APIView):
         serializer = JobSerializer(list_jobs, many=True)
 
         send_list = []
+        apply_id = []
 
         for job in list_jobs:
             for app in apply_list:
+
                 if job.id == app.job.id:
+                    target_user_id = app.user
+                    profile = Profile.objects.get(user = user)
+                    print(profile)
+
                     new_data = {
-                        "id" : app.user.id, 
-                        "profile_id" : "2", 
+                        "id" : job.id, 
+                        "jobId": job.id, 
+                        "profile_id" : job.id, 
                         "job_title" : job.job_title, 
                         "experience" : "3",
                         "hourly_rate" : 12500.00,
-                        "languages": "English", 
-                        "bio" : "Hello",
-                        "skills" : "Hello", 
-                        "education" : "Hello",
-                        "website_link": "https://emilyrodriguez.analytics",
-                        "linkedin_link": "https://linkedin.com/in/emily-rodriguez-data",
+                        "languages": profile.languages, 
+                        "bio" : profile.bio,
+                        "skills" : profile.skills, 
+                        "education" : profile.education,
+                        "website_link": profile.website_link,
+                        "linkedin_link": profile.linkdeln_link,
                         "name": f"{app.user.first_name} {app.user.last_name}",
                         "email": app.user.email,
                         "phone": app.user.phone_number,
                         "location": app.user.address_default,
-                        "jobId": app.job.id,
-                        "appliedDate": "2024-06-23",
-                        "expectedSalary": 520000,
-                        "status": "pending",
+                        "appliedDate": app.applied_date,
+                        "expectedSalary": app.salary,
+                        "status": app.status,
                         "rating": 4.2,
-                        "avatar": "ER"
+                        "avatar": "ER",
                     }
 
                     send_list.append(new_data)
-
-
 
     
         return Response({"data" : serializer.data, "app" : send_list}, status=status.HTTP_200_OK)

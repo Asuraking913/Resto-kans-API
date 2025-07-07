@@ -54,16 +54,16 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     id = models.CharField(max_length = 255, unique = True, null = False, default = generate_id, primary_key = True)
-    job_title = models.CharField(max_length = 255)
-    experience = models.IntegerField(default = 1)
-    hourly_rate = models.FloatField()
-    languages = models.CharField(max_length = 255)
-    bio = models.TextField()
-    skills = models.TextField()
-    education = models.TextField()
-    website_link = models.CharField(max_length = 255)
-    linkdeln_link = models.CharField(max_length = 255)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    job_title = models.CharField(max_length = 255, blank = True)
+    experience = models.IntegerField(default = 1, blank = True)
+    hourly_rate = models.FloatField(blank = True, null = True)
+    languages = models.CharField(max_length = 255, blank = True)
+    bio = models.TextField(blank = True)
+    skills = models.TextField(blank = True)
+    education = models.TextField(blank = True)
+    website_link = models.CharField(max_length = 255, blank = True, null = True)
+    linkdeln_link = models.CharField(max_length = 255, blank = True, null = True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, blank = True, null = True)
 
 class Job(models.Model):
 
@@ -115,10 +115,20 @@ class Job(models.Model):
 
 
 class Apply(models.Model):
+
+    status_choices = (
+            ("1", "pending"), 
+            ("2", "rejected"), 
+            ("3", "accepted")
+        )
+
     id = models.CharField(max_length=255, primary_key= True, default = generate_id, null = False)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
     user_doc = models.FileField(blank = True)
+    salary = models.IntegerField(default=10000)
+    status = models.CharField(max_length = 15,choices = status_choices, default = 'pending')
+    applied_date = models.DateTimeField(null=False, auto_now=True)
 
 class Product(models.Model):
     id = models.CharField(max_length=255, primary_key= True, default = generate_id, null = False)

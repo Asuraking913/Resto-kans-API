@@ -1,5 +1,29 @@
 from rest_framework import serializers
-from .models import Job, User, Product, Order, OrderItem
+from .models import Job, Profile, User, Product, Order, OrderItem
+
+
+class UserProfileSerializer(serializers.ModelSerializer):
+
+    class Meta: 
+        model = Profile
+        fields = '__all__'
+        REQUIRED_FIELDS = [
+        'job_title',
+        'experience',
+        'hourly_rate', 
+        'languages', 
+        'bio',
+        'skills',
+        'education',
+        'linkdeln_link',
+        ]
+
+
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            for field in REQUIRED_FIELDS:
+                if field in self.fields:
+                    self.fields[field].required = True
 
 class JobApplySerializer(serializers.Serializer):
 
@@ -77,4 +101,4 @@ class OrderItemsSerializer(serializers.Serializer):
 
     class Meta:
         list_serializer_class = OrderItemsListSerializer
-    
+
