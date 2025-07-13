@@ -111,6 +111,8 @@ class Job(models.Model):
     special_skills = models.CharField(max_length = 255, default = '')
     duration = models.CharField(max_length = 255)
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank = "")
+    posted_date = models.DateTimeField(null=False, auto_now=True)
+
     # deadline date
 
 

@@ -43,9 +43,10 @@ class GetUserInformationView(APIView):
 
     
             response = {
+                'id' : user.id,
                 'first_name' : user.first_name if user.first_name else "",
                 'last_name' : user.last_name if user.last_name else "",
-                'phone' : user.phone_number if user.phone_number else "",
+                'phone_number' : user.phone_number if user.phone_number else "",
                 'location' : user.address_default if user.address_default else "",
                 'email' : user.email if user.email else "",
                 'job_title' : profile.job_title if profile.job_title else "",
@@ -221,8 +222,10 @@ class order_item(APIView):
 
                 if job.id == app.job.id:
                     target_user_id = app.user
-                    profile = Profile.objects.get(user = user)
-                    print(profile)
+                    try:
+                        profile = Profile.objects.get(user = user)
+                    except Profile.DoesNotExist:
+                        profile = Profile.objects.create(user = user)
 
                     new_data = {
                         "id" : job.id, 
@@ -252,3 +255,55 @@ class order_item(APIView):
 
     
         return Response({"data" : serializer.data, "app" : send_list}, status=status.HTTP_200_OK)
+
+
+class GetDashboardDetails(APIView): 
+
+    def get(self, request):
+
+        user_id = request.query_params.get('id')
+
+        if not user_id:
+            return Response({"msg" : "Invalid user Id"})
+        
+        user = User.objects.get(id = user_id)
+
+        list_apply = Apply.objects.filter(user = user).all()
+
+        response = []
+        for app in list_apply:
+
+
+            if app.user.id == user.id:
+
+                response_data = {
+                    "id" : app.id, 
+                    "jobId" : app.job.id, 
+                    "job_title" : app.job.job_title,
+                    "company_name" : f"{app.job.user.first_name} {app.job.user.last_name}",
+                    "job_type" : app.job.job_type, 
+                    "location" : app.job.location,
+                    "category" : app.job.category, 
+                    "payment_type" : app.job.payment_type,
+                    "min_budget" : app.job.min_budget,
+                    "max_budget" : app.job.max_budget,
+                    "company_size" : app.job.company_size,
+                    "required_skills" : app.job.required_skills, 
+                    "special_skills" : app.job.special_skills,
+                    "duration" : app.job.duration, 
+                    "postedDate" : app.job.posted_date,
+                    "description" : app.job.description,
+                    "appliedDate" : app.applied_date,
+                    "status" : app.status, 
+                    "expectedSalary" : f"{app.job.min_budget} {app.job.max_budget}", 
+                    "hourly_rate" : "",
+                    # "experience" : ""
+    
+                }
+
+                response.append(response_data)
+
+
+
+        return Response(response, status = status.HTTP_200_OK)
+

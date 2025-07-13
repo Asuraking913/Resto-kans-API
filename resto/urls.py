@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CreateJobView, Home, ProductView, order_item, GetUserInformationView
+from .views import CreateJobView, GetDashboardDetails, Home, ProductView, order_item, GetUserInformationView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 
@@ -11,5 +11,6 @@ urlpatterns = [
 
     # new endpoints
     path("create-list-job/", CreateJobView.as_view(), name="Get/Create Jobs"),
-    path("profile/", GetUserInformationView.as_view(), name="Get/Create Jobs")
+    path("profile/", GetUserInformationView.as_view(), name="Get/Create Jobs"),
+    path("get-dash/", GetDashboardDetails.as_view())
 ]
